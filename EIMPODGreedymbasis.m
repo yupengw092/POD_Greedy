@@ -1,3 +1,5 @@
+% EIM-POD-Greedy method with m (m=1,2,3,4) POD basis in each iteration
+
 clc
 clear
 format long;
@@ -106,4 +108,5 @@ for n = 1:iter
     end
 end
 end
+
 
