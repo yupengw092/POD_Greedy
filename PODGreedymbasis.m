@@ -1,3 +1,5 @@
+% Compute the error of the weak POD-Greedy method with m = 1,2,3,4
+
 clc
 clear
 format long;
@@ -122,4 +124,5 @@ xticks(2:2:20);
 xticklabels({'2', '4', '6', '8', '10', '12', '14', '16', '18', '20'});
 grid on;
 saveas(gcf,'PODGreedymbasis','epsc');
+
 save('PODGreedymbasis.mat','error','theta');
