@@ -1,8 +1,8 @@
 MATLAB codes for the paper "SOME NEW CONVERGENCE ANALYSIS AND APPLICATIONS OF POD-GREEDY ALGORITHMS" by Yuwen Li and Yupeng Wang.
 
-WeakPODGreedy.m outputs errors of the Weak POD-Greedy method with m = 1 for a parabolic problem and plots curves of the error estimator \Delta_n and error \sigma_n in Fig. 5.1.1 (left);
+PODGreedy.m outputs errors of the Weak POD-Greedy method with m = 1 for a parabolic problem and plots curves of the error estimator \Delta_n and error e_n in Fig. 5.1.1 (left);
 
-WeakPODGreedymbasis.m outputs errors of the Weak POD-Greedy method with m = 1,...,4 for the parabolic problem and plots curves of errors \sigma_n for in Fig. 5.1.1 (right);
+PODGreedymbasis.m outputs errors of the Weak POD-Greedy method with m = 1,...,4 for the parabolic problem and plots curves of errors E_N for in Fig. 5.1.1 (right);
 
 EIMPODGreedymbasis.m outputs errors of the EIM-POD—Greedy method for a target function f(x,t)=1/sqrt((x-\mu_1)^2+(t-\mu_2)^1+1) in L_\infty([0,1]^2) with m = 1,...,4 and plots curves in Fig.5.2.1 (left);
 
