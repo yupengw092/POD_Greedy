@@ -1,3 +1,7 @@
+% Convergence history of the empirical interpolation approximation 
+% and the EIM-POD-Greedy method for a target function f(x,t) in [0,1]^2
+
+
 clc
 clear all;
 format long;
@@ -107,4 +111,5 @@ xticklabels({'2','4','6','8','10','12','14','16','18','20'});
 set(gca, 'FontSize', 14);
 grid on;
 legend('EIM','EIM-POD-Greedy Method',  'FontSize', 14, 'Interpreter', 'latex');
+
 saveas(gcf,'EIM_EIMPODGreedy','epsc');
