@@ -2,7 +2,6 @@ clc
 clear
 format long;
 f = @(t,z) exp(-t).*sin(pi*z(:,1)).*sin(pi*z(:,2));
-%g = @(z) zeros(size(z,1),1);
 g = @(z) sin(pi*z(:,1)).*sin(pi*z(:,2));
 uD = @(t,z) zeros(size(z,1),1);
 pde.f = f;pde.u0 = g;pde.uD = uD;
@@ -80,9 +79,6 @@ for n = 1:iter
         end
         c = uh0'*A*V(:,1);
         uh0 = c*V(:,1);
-        % for i = 1:m
-        %     uh0 = uh0+V(:,i)*uh0'*M*V(:,i);
-        % end
         theta(n) = lam(m,m)/lam(1,1);
     else
         L = zeros(musize,1);L1 = L;
@@ -116,26 +112,25 @@ for n = 1:iter
                     2*(mu*FA1(j-1,1:st-1)+FA2(j-1,1:st-1))*un(:,j)+...
                     2*(un(:,j)-un(:,j-1))'*(mu*MA1+MA2)*un(:,j)/tau;
             end
-            % uh = Solve(mu,uh0,pde,node, elem, A1, A2, M, tau,timeSteps, F);
-            % for j = 2:timeSteps
-            %     for k = 1:st-1
-            %         uh(:,j) = uh(:,j)-V(:,k)'*A*uh(:,j)*V(:,k);
-            %     end
-            % end
             L(p) = sqrt(tau*r);
-            % L1(p) = sqrt(tau*trace(uh(:,2:end)'*A*uh(:,2:end)));
-            %fprintf('%d-th parameter\n',p);
         end
-        fprintf('POD-Greedy iteration at the %d-th step, cost: %ds\n', n,toc);
-        cost = cost+toc;
         error(n) = max(L1);
         [~,idx(n)] = max(L);
         res(n) = L(idx(n));
         mu = muset(idx(n));
-        uh = Solve(mu,uh0,pde,node, elem, A1, A2, M, tau,timeSteps, F);
-        AA = Mt/tau+mu*A1t+A2t;
+        AA = M/tau+mu*A1+A2;
+        for j = 1:timeSteps
+            if j == 1
+                uh(:,j) = uh0;
+            else
+                uh(fixedNode, j) = pde.uD((j - 1)*tau, node(fixedNode, :));
+                rhs = F(:,j)+M*uh(:,j-1)/tau-AA*uh(:,j);
+                uh(freeNode,j) = AA(freeNode, freeNode) \ rhs(freeNode);
+            end
+        end
+        aa = Mt/tau+mu*A1t+A2t;
         for j = 2:timeSteps
-            un(:,j) = AA\(Ft(:,j)+Mt*un(:,j-1)/tau);
+            un(:,j) = aa\(Ft(:,j)+Mt*un(:,j-1)/tau);
         end
         err = uh-V(:,1:st-1)*un;
         error(n) = sqrt(tau*trace(err(:,2:end)'*A*err(:,2:end)));
@@ -166,8 +161,8 @@ ylabel('${\rm log}_{10}\Delta_n$/ ${\rm log}_{10} e_n$','Interpreter','latex');
 xticks(2:2:20);
 xticklabels({'2', '4', '6', '8', '10', '12', '14', '16', '18', '20'});
 grid on;
-%saveas(gcf,'ErrorEstimator','epsc');
-save('PODGreedysmall.mat','res','error','idx','V','theta');
+
+
 
 
 
