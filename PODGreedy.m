@@ -9,11 +9,10 @@ musize = 100;
 muset = linspace(1, 2, musize)';
 iter = 20;
 finalT = 1;
-s = 6;
-tau = 2^(-s-1);
+tau = 2^-9;
 timeSteps = finalT / tau+1;
 
-[node, elem] = squaremesh([-1,1,-1,1],2^-s);
+[node, elem] = squaremesh([-1,1,-1,1],2^-8);
 NT = size(elem,1);NV = size(node,1);
 M = sparse(NV,NV);A1 = M;A2 = M;A = M;
 n1 = [];n2 = n1;
@@ -66,7 +65,7 @@ res = ones(iter,1);idx = res;theta = res;error = res;
 B = chol(A(freeNode,freeNode));
 V = zeros(NV,m*iter);
 AinvM = zeros(NV,m*iter);AinvA1 = AinvM;AinvA2 = AinvM;
-cost = 0;st = 1;
+st = 1;
 tic;
 for n = 1:iter
     if n == 1
@@ -96,14 +95,12 @@ for n = 1:iter
         A1t = V(:,1:st-1)'*A1*V(:,1:st-1);
         A2t = V(:,1:st-1)'*A2*V(:,1:st-1);
         Ft = V(:,1:st-1)'*F;
-        tic;
         for p = 1:musize
             mu = muset(p);
             AA = Mt/tau+mu*A1t+A2t;
             un = zeros(st-1,timeSteps);
             un(:,1) = Mt\(V(:,1:st-1)'*M*uh0);
-            w = uh0-V(:,1:st-1)*un(:,1);
-            r = FF+w'*A*w;
+            r = FF;
             for j = 2:timeSteps
                 un(:,j) = AA\(Ft(:,j)+Mt*un(:,j-1)/tau);
                 r = r+(un(:,j)-un(:,j-1))'*MM*(un(:,j)-un(:,j-1))/tau^2+...
@@ -114,7 +111,6 @@ for n = 1:iter
             end
             L(p) = sqrt(tau*r);
         end
-        error(n) = max(L1);
         [~,idx(n)] = max(L);
         res(n) = L(idx(n));
         mu = muset(idx(n));
@@ -123,7 +119,7 @@ for n = 1:iter
             if j == 1
                 uh(:,j) = uh0;
             else
-                uh(fixedNode, j) = pde.uD((j - 1)*tau, node(fixedNode, :));
+                uh(bdNode, j) = pde.uD((j - 1)*tau, node(bdNode, :));
                 rhs = F(:,j)+M*uh(:,j-1)/tau-AA*uh(:,j);
                 uh(freeNode,j) = AA(freeNode, freeNode) \ rhs(freeNode);
             end
@@ -161,6 +157,7 @@ ylabel('${\rm log}_{10}\Delta_n$/ ${\rm log}_{10} e_n$','Interpreter','latex');
 xticks(2:2:20);
 xticklabels({'2', '4', '6', '8', '10', '12', '14', '16', '18', '20'});
 grid on;
+
 
 
 
