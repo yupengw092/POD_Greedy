@@ -60,7 +60,7 @@ T = myauxstructure(elem);
 bdNode = T.bdNode;
 freeNode = setdiff(1:NV, bdNode);
 B = chol(A(freeNode,freeNode));
-idx = 
+idx =  [10,100,100,100,100,100,55,100,51,100,49,53,100,48,52,49,55,100,100,1];
 error = zeros(iter,4);theta = error;
 for m = 1:4
     st = 1;
@@ -161,3 +161,4 @@ T = struct('neighbor',neighbor,'elem2edge',elem2edge,'edge',edge,'edge2elem',edg
     'bdEdge',bdEdge,'bdNode',unique(bdEdge),'bdEI',bdEI,...
     'signedge',signedge,'bdElem',bdElem,'bdEdge2elem',bdEdge2elem);
 end
+
