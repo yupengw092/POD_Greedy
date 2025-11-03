@@ -70,7 +70,17 @@ tic;
 for n = 1:iter
     if n == 1
         idx(n) = 20;
-        uh = Solve(muset(idx(n)),uh0,pde, node, elem, A1, A2, M, tau, timeSteps, F);
+        mu = muset(idx(n));
+        AA = M/tau+mu*A1+A2;
+        for j = 1:timeSteps
+            if j == 1
+                uh(:,j) = uh0;
+            else
+                uh(bdNode, j) = pde.uD((j - 1)*tau, node(bdNode, :));
+                rhs = F(:,j)+M*uh(:,j-1)/tau-AA*uh(:,j);
+                uh(freeNode,j) = AA(freeNode, freeNode) \ rhs(freeNode);
+            end
+        end
         [~,lam,v] = svds(B*uh(freeNode,2:end),m);
         for i = 1:m
             V(freeNode,st) = uh(freeNode,2:end)*v(:,i)/lam(i,i);
@@ -199,6 +209,7 @@ T = struct('neighbor',neighbor,'elem2edge',elem2edge,'edge',edge,'edge2elem',edg
     'bdEdge',bdEdge,'bdNode',unique(bdEdge),'bdEI',bdEI,...
     'signedge',signedge,'bdElem',bdElem,'bdEdge2elem',bdEdge2elem);
 end
+
 
 
 
