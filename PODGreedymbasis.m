@@ -60,7 +60,7 @@ T = myauxstructure(elem);
 bdNode = T.bdNode;
 freeNode = setdiff(1:NV, bdNode);
 B = chol(A(freeNode,freeNode));
-load("PODGreedysmall.mat");
+idx = 
 error = zeros(iter,4);theta = error;
 for m = 1:4
     st = 1;
@@ -106,7 +106,6 @@ for m = 1:4
         fprintf('Iteraton at %d-th step\n',n);
     end
 end
-save('PODGreedymbasis.mat','error');
 figure('Color', [1 1 1]);
 hold on;
 semilogy(1:iter, log10(error(:,1)), 'Marker', 'o', 'linewidth', 0.5);
@@ -116,13 +115,49 @@ hold on;
 semilogy(1:iter, log10(error(:,3)), 'Marker', '*', 'linewidth', 0.5);
 hold on;
 semilogy(1:iter, log10(error(:,4)), 'Marker', '+', 'linewidth', 0.5);
-
 legend('$m=1$','$m=2$','$m=3$','$m=4$','Interpreter', 'latex','Fontsize', 14);
 xlabel('$N$','Interpreter','latex');
 ylabel('${\rm log}_{10} E_N$','Interpreter','latex');
 xticks(2:2:20);
 xticklabels({'2', '4', '6', '8', '10', '12', '14', '16', '18', '20'});
 grid on;
-saveas(gcf,'PODGreedymbasis','epsc');
 
-save('PODGreedymbasis.mat','error','theta');
+
+function T = myauxstructure(elem)
+%% AUXSTRUCTURE auxiliary structure for a 2-D triangulation.
+totalEdge = sort([elem(:,[2,3]); elem(:,[3,1]); elem(:,[1,2])],2);
+[edge,i2,j] = unique(totalEdge,'rows','legacy');
+NT = size(elem,1);
+elem2edge = reshape(j,NT,3);
+i1(j(3*NT:-1:1)) = 3*NT:-1:1; 
+i1 = i1';
+k1 = ceil(i1/NT); 
+k2 = ceil(i2/NT); 
+t1 = i1 - NT*(k1-1);
+t2 = i2 - NT*(k2-1);
+ix = (i1 ~= i2); 
+edge2elem = [t1,t2,k1,k2];
+neighbor = accumarray([[t1(ix),k1(ix)];[t2,k2]],[t2(ix);t1],[NT 3]);
+bdElem = t1(t1 == t2);
+
+
+iy = ( t1 == t2 ); list = (1:size(edge,1))'; 
+bdEI = list(iy); 
+bdEdge = edge(bdEI,:);
+bdk1 = k1(t1 == t2);
+bdEdge2elem = [bdElem(bdk1==1);bdElem(bdk1==2);bdElem(bdk1==3)];
+
+
+signedge = ones(NT,3);
+signedge(:,1) = signedge(:,1) - 2* (elem(:,2)>elem(:,3));
+signedge(:,2) = signedge(:,2) - 2* (elem(:,3)>elem(:,1));
+signedge(:,3) = signedge(:,3) - 2* (elem(:,1)>elem(:,2));
+
+
+bdLI = edge2elem(bdEI,3);
+
+
+T = struct('neighbor',neighbor,'elem2edge',elem2edge,'edge',edge,'edge2elem',edge2elem,...
+    'bdEdge',bdEdge,'bdNode',unique(bdEdge),'bdEI',bdEI,...
+    'signedge',signedge,'bdElem',bdElem,'bdEdge2elem',bdEdge2elem);
+end
